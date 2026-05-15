@@ -244,11 +244,24 @@ async function main() {
       }
     }
 
-    if (components.search) components.search.engine = 'elasticsearch';
+    if (components.search) components.search.engine = 'solr6';
 
     const acsVersion = env['ALFRESCO_TAG'] ?? version;
     resultByMinor.set(version, { acs: acsVersion, edition: 'enterprise', components });
     console.log(`OK → ACS ${acsVersion}`);
+  }
+
+  // Elasticsearch / OpenSearch were not officially supported as search backends
+  // in ACS 7.x Enterprise (Solr 6 was the only supported engine). Strip those
+  // components from any pre-23.x entry so the matrix doesn't misrepresent them.
+  for (const entry of resultByMinor.values()) {
+    const major = parseInt(String(entry.acs).split('.')[0], 10);
+    if (major < 23) {
+      delete entry.components.elasticsearch;
+      delete entry.components.elasticsearchIndexing;
+      delete entry.components.opensearch;
+      if (entry.components.search) entry.components.search.engine = 'solr6';
+    }
   }
 
   const entries = [...resultByMinor.values()]
