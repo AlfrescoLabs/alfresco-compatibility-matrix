@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alfresco Compatibility Matrix</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page">
+
+    <header class="site-header">
+      <div class="header-inner">
+        <div class="brand">
+          <img src="assets/hyland-logo-white.svg" class="brand-hyland-logo" alt="Hyland" />
+          <span class="brand-divider" aria-hidden="true"></span>
+          <img src="assets/alfresco-mark.svg" class="brand-alfresco-logo" alt="Alfresco" />
+          <div class="brand-text">
+            <h1>Alfresco Compatibility Matrix</h1>
+            <p class="brand-subtitle">Latest compatible component versions per ACS release</p>
+          </div>
+        </div>
+        <div class="header-badge" aria-label="Data sourced live from Docker Hub">
+          <span class="pulse-dot" aria-hidden="true"></span>
+          Live from Docker Hub
+        </div>
+      </div>
+    </header>
+
+    <div class="controls-bar">
+      <div class="controls-inner">
+
+        <div class="edition-toggle" id="edition-toggle" role="group" aria-label="Select edition">
+          <div class="toggle-pill" id="toggle-pill" aria-hidden="true"></div>
+          <button class="toggle-btn active" data-edition="community" type="button" aria-pressed="true">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+            </svg>
+            Community
+          </button>
+          <button class="toggle-btn" data-edition="enterprise" type="button" aria-pressed="false">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+              <rect x="3" y="3" width="18" height="18" rx="2.5"/><path d="M9 9h6M9 12.5h6M9 16h4"/>
+            </svg>
+            Enterprise
+          </button>
+        </div>
+
+        <div class="version-control">
+          <span class="version-label" id="version-label">ACS Version</span>
+          <div class="select-wrapper">
+            <select id="version-select" class="version-select" aria-labelledby="version-label"></select>
+            <svg class="select-chevron" width="11" height="7" viewBox="0 0 11 7" fill="none" aria-hidden="true">
+              <path d="M1 1L5.5 6L10 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <main class="main-content">
+      <div id="matrix-container" class="matrix-container">
+        <div class="state-wrapper loading-state">
+          <div class="spinner" role="status" aria-label="Loading data"></div>
+          <p>Loading compatibility data…</p>
+        </div>
+      </div>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <span class="footer-updated" id="footer-updated">—</span>
+        <nav class="footer-links" aria-label="Source repositories">
+          <a href="https://github.com/Alfresco/acs-deployment" class="footer-link" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            acs-deployment
+          </a>
+          <a href="https://github.com/Alfresco/alfresco-docker-installer" class="footer-link" target="_blank" rel="noopener noreferrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+            </svg>
+            alfresco-docker-installer
+          </a>
+        </nav>
+      </div>
+    </footer>
+
+  </div>
+
+  <script>
+  (() => {
+    'use strict';
+
+    const DISPLAY_NAMES = {
+      repository:            'ACS Repository',
+      share:                 'Alfresco Share',
+      search:                'Search',
+      contentApp:            'Alfresco Content App',
+      transformEngine:       'Transform Engine',
+      transformRouter:       'Transform Router',
+      transformCoreAio:      'Transform Core AIO',
+      sharedFileStore:       'Shared File Store',
+      digitalWorkspace:      'Digital Workspace',
+      controlCenter:         'Control Center',
+      serviceSync:           'Sync Service',
+      elasticsearchIndexing: 'Elasticsearch Indexing',
+      auditStorage:          'Audit Storage',
+      activeMQ:              'ActiveMQ',
+      elasticsearch:         'Elasticsearch',
+      opensearch:            'OpenSearch',
+      postgres:              'PostgreSQL',
+      mariadb:               'MariaDB',
+    };
+
+    const CATEGORIES = [
+      { label: 'Core',               keys: ['repository', 'share'] },
+      { label: 'Search & Transform', keys: ['search', 'transformEngine', 'transformRouter', 'transformCoreAio', 'sharedFileStore', 'elasticsearchIndexing'] },
+      { label: 'User Interface',     keys: ['contentApp', 'digitalWorkspace', 'controlCenter'] },
+      { label: 'Messaging',          keys: ['activeMQ'] },
+      { label: 'Data & Sync',        keys: ['serviceSync', 'auditStorage'] },
+      { label: 'Infrastructure',     keys: ['elasticsearch', 'opensearch', 'postgres', 'mariadb'] },
+    ];
+
+    let matrixData = null;
+    let currentEdition = 'community';
+    let currentVersion = null;
+
+    function parseVerNum(v) {
+      const parts = String(v).split('.').map(n => parseInt(n) || 0);
+      return (parts[0] || 0) * 10000 + (parts[1] || 0) * 100 + (parts[2] || 0);
+    }
+
+    function esc(str) {
+      return String(str)
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function getVersions(edition) {
+      if (!matrixData) return [];
+      return matrixData.versions
+        .filter(e => e.edition === edition)
+        .map(e => e.acs)
+        .sort((a, b) => parseVerNum(b) - parseVerNum(a));
+    }
+
+    function getEntry(edition, version) {
+      return matrixData?.versions.find(e => e.edition === edition && e.acs === version) ?? null;
+    }
+
+    function renderVersionSelect(edition) {
+      const select = document.getElementById('version-select');
+      const versions = getVersions(edition);
+      select.innerHTML = '';
+      versions.forEach(v => {
+        const entry = getEntry(edition, v);
+        const repoBase = entry?.components?.repository?.base;
+        const suffix = (repoBase && repoBase !== v && !repoBase.startsWith(v + '.'))
+          ? `  (${repoBase})` : '';
+        const opt = document.createElement('option');
+        opt.value = v;
+        opt.textContent = v + suffix;
+        select.appendChild(opt);
+      });
+      currentVersion = versions[0] ?? null;
+      if (currentVersion) select.value = currentVersion;
+    }
+
+    function searchNote(key, data) {
+      if (key === 'search') {
+        const engine = data?.engine;
+        if (engine === 'solr6')         return '<span class="note-badge solr">Solr 6</span>';
+        if (engine === 'elasticsearch') return '<span class="note-badge elastic">Elasticsearch</span>';
+      }
+      if (key === 'elasticsearch' || key === 'elasticsearchIndexing') {
+        return '<span class="note-badge elastic">Elasticsearch</span>';
+      }
+      if (key === 'opensearch') {
+        return '<span class="note-badge opensearch">OpenSearch</span>';
+      }
+      return '';
+    }
+
+    function renderTable(entry) {
+      if (!entry) return '<div class="state-wrapper empty-state"><p>No data available for this selection.</p></div>';
+
+      const { components } = entry;
+      const present = new Set(Object.keys(components));
+      let bodyHtml = '';
+      let rowIdx = 0;
+
+      for (const cat of CATEGORIES) {
+        const catKeys = cat.keys.filter(k => present.has(k));
+        if (!catKeys.length) continue;
+
+        bodyHtml += `<tr class="cat-row"><td colspan="4"><span class="cat-label">${esc(cat.label)}</span></td></tr>`;
+
+        for (const key of catKeys) {
+          const d = components[key];
+          const base   = d?.base   ?? '—';
+          const latest = d?.latest ?? base;
+          const patched = latest && base && latest !== base;
+          const note = searchNote(key, d);
+          const cls  = ['data-row', rowIdx % 2 === 0 ? 'row-even' : 'row-odd', patched ? 'patched' : ''].filter(Boolean).join(' ');
+
+          const dockerImage = d?.dockerImage ?? '';
+          bodyHtml += `<tr class="${cls}" style="animation-delay:${rowIdx * 22}ms">
+            <td class="cell-name">
+              <span class="component-label">${esc(DISPLAY_NAMES[key] || key)}</span>
+              ${dockerImage ? `<span class="docker-image">${esc(dockerImage)}</span>` : ''}
+              ${note ? `<span class="note-inline">${note}</span>` : ''}
+            </td>
+            <td class="cell-base"><code>${esc(base)}</code></td>
+            <td class="cell-latest">
+              <span class="latest-wrap">
+                <code>${esc(latest)}</code>${patched ? '<span class="badge-updated">updated</span>' : ''}
+              </span>
+            </td>
+          </tr>`;
+          rowIdx++;
+        }
+      }
+
+      return `<table class="compat-table">
+        <thead>
+          <tr>
+            <th scope="col">Component</th>
+            <th scope="col">Base Version</th>
+            <th scope="col">Latest Patch</th>
+          </tr>
+        </thead>
+        <tbody>${bodyHtml}</tbody>
+      </table>`;
+    }
+
+    function render() {
+      const container = document.getElementById('matrix-container');
+      container.innerHTML = renderTable(getEntry(currentEdition, currentVersion));
+    }
+
+    function setEdition(edition) {
+      currentEdition = edition;
+      document.querySelectorAll('.toggle-btn').forEach(btn => {
+        const active = btn.dataset.edition === edition;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-pressed', String(active));
+      });
+      document.getElementById('toggle-pill').style.transform =
+        edition === 'enterprise' ? 'translateX(100%)' : 'translateX(0)';
+      renderVersionSelect(edition);
+      render();
+    }
+
+    async function init() {
+      try {
+        const res = await fetch('data/matrix.json');
+        if (!res.ok) throw new Error(`HTTP ${res.status} — ${res.statusText}`);
+        matrixData = await res.json();
+
+        if (matrixData.generated) {
+          const d = new Date(matrixData.generated);
+          const fmt = new Intl.DateTimeFormat('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric',
+            hour: '2-digit', minute: '2-digit', timeZoneName: 'short',
+          });
+          document.getElementById('footer-updated').textContent = `Last updated: ${fmt.format(d)}`;
+        }
+
+        renderVersionSelect(currentEdition);
+        render();
+      } catch (err) {
+        document.getElementById('matrix-container').innerHTML = `
+          <div class="state-wrapper error-state">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="9"/>
+              <line x1="12" y1="8" x2="12" y2="13.5"/>
+              <circle cx="12" cy="16.5" r=".6" fill="currentColor"/>
+            </svg>
+            <div class="error-body">
+              <h3>Could not load compatibility data</h3>
+              <p>${esc(err.message)}</p>
+              <p class="error-hint">Generate the data file first: <code>npm run build</code></p>
+            </div>
+          </div>`;
+      }
+    }
+
+    document.getElementById('edition-toggle').addEventListener('click', e => {
+      const btn = e.target.closest('.toggle-btn');
+      if (btn && btn.dataset.edition !== currentEdition) setEdition(btn.dataset.edition);
+    });
+
+    document.getElementById('version-select').addEventListener('change', e => {
+      currentVersion = e.target.value;
+      render();
+    });
+
+    init();
+  })();
+  </script>
+</body>
+</html>

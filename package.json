@@ -1,0 +1,21 @@
+{
+  "name": "alfresco-compatibility-matrix",
+  "version": "1.0.0",
+  "description": "ACS component compatibility matrix — static site with weekly refresh",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AlfrescoLabs/alfresco-compatibility-matrix.git"
+  },
+  "author": "Alfresco Labs",
+  "license": "Apache-2.0",
+  "scripts": {
+    "fetch": "node scripts/fetch-community.js && node scripts/fetch-enterprise.js",
+    "resolve": "node scripts/resolve-latest.js",
+    "build": "npm run fetch && npm run resolve",
+    "serve": "npx serve ."
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  }
+}
