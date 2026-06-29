@@ -173,6 +173,23 @@ async function fetchComposeAtTag(tag) {
   return yamlLoad(cleaned);
 }
 
+async function fetchMasterNamedComposeFiles() {
+  const url = 'https://api.github.com/repos/Alfresco/acs-deployment/contents/docker-compose';
+  const res = await fetch(url, { headers: githubHeaders() });
+  if (!res.ok) throw new Error(`GitHub contents API HTTP ${res.status}`);
+  const entries = await res.json();
+  const results = [];
+  for (const entry of entries) {
+    if (!/^\d+\.N-compose\.yaml$/.test(entry.name)) continue;
+    const fileRes = await fetch(entry.download_url);
+    if (!fileRes.ok) { console.warn(`  SKIP ${entry.name}: HTTP ${fileRes.status}`); continue; }
+    const text = await fileRes.text();
+    const cleaned = text.replace(/<%[^%]*%>/g, '""');
+    results.push({ filename: entry.name, doc: yamlLoad(cleaned) });
+  }
+  return results;
+}
+
 async function fetchFallbackEnv(version) {
   const url = `${ALFRESCOL_BASE}/${version}/.env`;
   const res = await fetch(url);
@@ -222,6 +239,19 @@ async function main() {
 
     resultByMinor.set(minor, { acs: acsVersion, edition: 'enterprise', components });
     console.log(`OK → ACS ${acsVersion}`);
+  }
+
+  // Fill any minor versions missing from tags using named compose files on master
+  console.log('\nFetching named compose files from master...');
+  const namedFiles = await fetchMasterNamedComposeFiles();
+  for (const { filename, doc } of namedFiles) {
+    const components = extractComponents(doc);
+    const acsVersion = components.repository?.base;
+    if (!acsVersion) { console.log(`  ${filename}: no repository image, skipping`); continue; }
+    const minor = acsMinor(acsVersion);
+    if (resultByMinor.has(minor)) { console.log(`  ${filename}: ${minor} already covered, skipping`); continue; }
+    resultByMinor.set(minor, { acs: acsVersion, edition: 'enterprise', components });
+    console.log(`  ${filename}: OK → ACS ${acsVersion}`);
   }
 
   // Fallback: fill ACS 7.x entries from AlfrescoLabs repo (best-effort)
