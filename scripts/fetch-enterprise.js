@@ -254,6 +254,32 @@ async function main() {
     console.log(`  ${filename}: OK → ACS ${acsVersion}`);
   }
 
+  // Fill the current in-development train (e.g. 26.2) from the plain master
+  // compose.yaml. Released trains are cut as vX.Y.Z tags of acs-deployment, but
+  // the newest ACS version lives only in docker-compose/compose.yaml on master
+  // until its tag is published, so it would otherwise be invisible.
+  console.log('\nFetching plain master compose.yaml...');
+  try {
+    const doc = await fetchComposeAtTag('master');
+    if (doc) {
+      const components = extractComponents(doc);
+      const acsVersion = components.repository?.base;
+      if (!acsVersion) {
+        console.log('  compose.yaml: no repository image, skipping');
+      } else {
+        const minor = acsMinor(acsVersion);
+        if (resultByMinor.has(minor)) {
+          console.log(`  compose.yaml: ${minor} already covered, skipping`);
+        } else {
+          resultByMinor.set(minor, { acs: acsVersion, edition: 'enterprise', components });
+          console.log(`  compose.yaml: OK → ACS ${acsVersion}`);
+        }
+      }
+    }
+  } catch (err) {
+    console.warn(`  compose.yaml FAIL: ${err.message}`);
+  }
+
   // Fallback: fill ACS 7.x entries from AlfrescoLabs repo (best-effort)
   console.log('\nFetching ACS 7.x fallback entries from AlfrescoLabs/alfresco-enterprise-docker...');
   for (const version of ALFRESCOL_VERSIONS) {

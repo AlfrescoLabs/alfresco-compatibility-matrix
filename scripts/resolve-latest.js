@@ -30,6 +30,10 @@ const DOCKER_IMAGE = {
   activeMQ:        { ns: 'alfresco', image: 'alfresco-activemq' },
   elasticsearch:   { ns: 'library', image: 'elasticsearch' },
   opensearch:      { ns: 'opensearchproject', image: 'opensearch' },
+  // Community search indexer from ACS 26.2 (Solr search-services was dropped).
+  // Enterprise uses the quay.io live-indexing image, resolved via its own
+  // dockerImage, so this Docker Hub entry only applies to Community.
+  elasticsearchIndexing: { ns: 'alfresco', image: 'alfresco-elasticsearch-batch-indexing' },
 };
 
 const SEARCH_ENGINE_IMAGE = {
@@ -131,6 +135,8 @@ function isStable(tag) {
          !lower.includes('-a.') &&
          !lower.includes('-a') && // quay.io uses -A1, -A2 style
          !lower.includes('beta') &&
+         !lower.includes('-b.') &&
+         !lower.includes('-b') && // quay.io uses -B1, -B2 style
          !lower.includes('snapshot') &&
          !lower.includes('rc') &&
          !lower.includes('latest') &&

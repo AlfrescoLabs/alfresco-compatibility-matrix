@@ -6,6 +6,7 @@
 import { writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { load as yamlLoad } from 'js-yaml';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(__dirname, '..');
@@ -45,6 +46,53 @@ const KEY_MAP = {
   TRANSFORM_ENGINE_TAG: 'transformEngine',
   ACTIVEMQ_TAG:         'activeMQ',
 };
+
+// Maps Docker image name fragments in acs-deployment's community-compose.yaml
+// (master) -> canonical component names. Used only for the current
+// in-development train, which has no template folder yet.
+const COMPOSE_IMAGE_MAP = [
+  { match: /alfresco\/alfresco-content-repository-community:/,        name: 'repository' },
+  { match: /alfresco\/alfresco-share:/,                              name: 'share' },
+  { match: /alfresco\/alfresco-content-app:/,                        name: 'contentApp' },
+  { match: /alfresco\/alfresco-transform-core-aio:/,                 name: 'transformEngine' },
+  { match: /alfresco\/alfresco-control-center:/,                     name: 'controlCenter' },
+  { match: /alfresco\/alfresco-activemq:/,                           name: 'activeMQ' },
+  { match: /alfresco\/alfresco-elasticsearch-batch-indexing:/,       name: 'elasticsearchIndexing' },
+  { match: /^postgres:/,                                             name: 'postgres' },
+  { match: /^elasticsearch:/,                                        name: 'elasticsearch' },
+];
+
+function extractTag(imageStr) {
+  const colonIdx = imageStr.lastIndexOf(':');
+  return colonIdx !== -1 ? imageStr.slice(colonIdx + 1) : imageStr;
+}
+
+function extractComposeComponents(doc) {
+  const components = {};
+  const services = doc?.services ?? {};
+  for (const svc of Object.values(services)) {
+    const image = svc?.image;
+    if (!image || typeof image !== 'string') continue;
+    // Strip registry prefix so regexes that start with ^ work on bare names
+    const bareImage = image.replace(/^[^/]+\.[^/]+\//, '');
+    for (const { match, name } of COMPOSE_IMAGE_MAP) {
+      if (match.test(bareImage) || match.test(image)) {
+        // Keep an explicit dockerImage only for registries resolve-latest.js
+        // does not map itself (quay.io). Docker Hub images are resolved via its
+        // own DOCKER_IMAGE table, so a bare { base } is enough there.
+        const comp = { base: extractTag(image) };
+        if (/^quay\.io\//.test(image)) {
+          const colonIdx = image.lastIndexOf(':');
+          comp.dockerImage = colonIdx !== -1 ? image.slice(0, colonIdx) : image;
+        }
+        if (name === 'elasticsearch') comp.engine = 'elasticsearch';
+        components[name] = comp;
+        break;
+      }
+    }
+  }
+  return components;
+}
 
 function parseEnv(text) {
   const result = {};
@@ -98,6 +146,32 @@ async function main() {
 
     entries.push({ acs: version, edition: 'community', components });
     console.log('OK');
+  }
+
+  // Fill the current in-development train (e.g. 26.2) from the plain master
+  // community-compose.yaml in acs-deployment. The newest ACS version has no
+  // template folder in alfresco-docker-installer until it is released, so it
+  // would otherwise be invisible on the Community side.
+  console.log('Fetching plain master community-compose.yaml...');
+  const composeUrl = 'https://raw.githubusercontent.com/Alfresco/acs-deployment/master/docker-compose/community-compose.yaml';
+  const composeRes = await fetch(composeUrl);
+  if (!composeRes.ok) {
+    console.warn(`  SKIP community-compose.yaml: HTTP ${composeRes.status}`);
+  } else {
+    const cleaned = (await composeRes.text()).replace(/<%[^%]*%>/g, '""');
+    const components = extractComposeComponents(yamlLoad(cleaned));
+    const repoBase = components.repository?.base;
+    if (!repoBase) {
+      console.warn('  SKIP community-compose.yaml: no repository image');
+    } else {
+      const minor = repoBase.split('.').slice(0, 2).join('.');
+      if (entries.some(e => e.acs === minor)) {
+        console.log(`  community-compose.yaml: ${minor} already covered, skipping`);
+      } else {
+        entries.push({ acs: minor, edition: 'community', components });
+        console.log(`  community-compose.yaml: OK -> ACS ${minor} (repo ${repoBase})`);
+      }
+    }
   }
 
   mkdirSync(join(ROOT, 'data'), { recursive: true });

@@ -247,27 +247,27 @@
     }
   },
   {
-    "acs": "23.7.0",
+    "acs": "23.7.1",
     "edition": "enterprise",
     "components": {
       "repository": {
-        "base": "23.7.0",
+        "base": "23.7.1",
         "dockerImage": "quay.io/alfresco/alfresco-content-repository"
       },
       "transformRouter": {
-        "base": "4.4.2",
+        "base": "4.4.3",
         "dockerImage": "quay.io/alfresco/alfresco-transform-router"
       },
       "transformCoreAio": {
-        "base": "5.4.2",
+        "base": "5.4.3",
         "dockerImage": "quay.io/alfresco/alfresco-transform-core-aio"
       },
       "sharedFileStore": {
-        "base": "4.4.2",
+        "base": "4.4.3",
         "dockerImage": "quay.io/alfresco/alfresco-shared-file-store"
       },
       "share": {
-        "base": "23.7.0",
+        "base": "23.7.1",
         "dockerImage": "quay.io/alfresco/alfresco-share"
       },
       "postgres": {
@@ -280,7 +280,7 @@
         "engine": "elasticsearch"
       },
       "elasticsearchIndexing": {
-        "base": "5.6.0",
+        "base": "5.7.0",
         "dockerImage": "quay.io/alfresco/alfresco-elasticsearch-live-indexing"
       },
       "activeMQ": {
@@ -288,19 +288,19 @@
         "dockerImage": "quay.io/alfresco/alfresco-activemq"
       },
       "auditStorage": {
-        "base": "1.3.2",
+        "base": "1.3.3",
         "dockerImage": "quay.io/alfresco/alfresco-audit-storage"
       },
       "digitalWorkspace": {
-        "base": "7.5.0",
+        "base": "8.0.0",
         "dockerImage": "quay.io/alfresco/alfresco-digital-workspace"
       },
       "controlCenter": {
-        "base": "10.5.0",
+        "base": "11.0.0",
         "dockerImage": "quay.io/alfresco/alfresco-control-center"
       },
       "serviceSync": {
-        "base": "5.3.4",
+        "base": "5.3.5",
         "dockerImage": "quay.io/alfresco/service-sync"
       }
     }
@@ -483,27 +483,27 @@
     }
   },
   {
-    "acs": "25.4.0",
+    "acs": "25.4.1",
     "edition": "enterprise",
     "components": {
       "repository": {
-        "base": "25.4.0",
+        "base": "25.4.1",
         "dockerImage": "quay.io/alfresco/alfresco-content-repository"
       },
       "transformRouter": {
-        "base": "4.4.2",
+        "base": "4.4.3",
         "dockerImage": "quay.io/alfresco/alfresco-transform-router"
       },
       "transformCoreAio": {
-        "base": "5.4.2",
+        "base": "5.4.3",
         "dockerImage": "quay.io/alfresco/alfresco-transform-core-aio"
       },
       "sharedFileStore": {
-        "base": "4.4.2",
+        "base": "4.4.3",
         "dockerImage": "quay.io/alfresco/alfresco-shared-file-store"
       },
       "share": {
-        "base": "25.4.0",
+        "base": "25.4.1",
         "dockerImage": "quay.io/alfresco/alfresco-share"
       },
       "postgres": {
@@ -516,7 +516,7 @@
         "engine": "elasticsearch"
       },
       "elasticsearchIndexing": {
-        "base": "5.6.0",
+        "base": "5.7.0",
         "dockerImage": "quay.io/alfresco/alfresco-elasticsearch-live-indexing"
       },
       "activeMQ": {
@@ -524,19 +524,19 @@
         "dockerImage": "quay.io/alfresco/alfresco-activemq"
       },
       "auditStorage": {
-        "base": "1.3.2",
+        "base": "1.3.3",
         "dockerImage": "quay.io/alfresco/alfresco-audit-storage"
       },
       "digitalWorkspace": {
-        "base": "7.5.0",
+        "base": "8.0.0",
         "dockerImage": "quay.io/alfresco/alfresco-digital-workspace"
       },
       "controlCenter": {
-        "base": "10.5.0",
+        "base": "11.0.0",
         "dockerImage": "quay.io/alfresco/alfresco-control-center"
       },
       "serviceSync": {
-        "base": "5.3.4",
+        "base": "5.3.5",
         "dockerImage": "quay.io/alfresco/service-sync"
       }
     }
@@ -596,6 +596,65 @@
       },
       "serviceSync": {
         "base": "5.3.4",
+        "dockerImage": "quay.io/alfresco/service-sync"
+      }
+    }
+  },
+  {
+    "acs": "26.2.0",
+    "edition": "enterprise",
+    "components": {
+      "repository": {
+        "base": "26.2.0",
+        "dockerImage": "quay.io/alfresco/alfresco-content-repository"
+      },
+      "transformRouter": {
+        "base": "4.4.3",
+        "dockerImage": "quay.io/alfresco/alfresco-transform-router"
+      },
+      "transformCoreAio": {
+        "base": "5.4.3",
+        "dockerImage": "quay.io/alfresco/alfresco-transform-core-aio"
+      },
+      "sharedFileStore": {
+        "base": "4.4.3",
+        "dockerImage": "quay.io/alfresco/alfresco-shared-file-store"
+      },
+      "share": {
+        "base": "26.2.0",
+        "dockerImage": "quay.io/alfresco/alfresco-share"
+      },
+      "postgres": {
+        "base": "17.9",
+        "dockerImage": "postgres"
+      },
+      "elasticsearch": {
+        "base": "8.17.10",
+        "dockerImage": "elasticsearch",
+        "engine": "elasticsearch"
+      },
+      "elasticsearchIndexing": {
+        "base": "5.7.0",
+        "dockerImage": "quay.io/alfresco/alfresco-elasticsearch-live-indexing"
+      },
+      "activeMQ": {
+        "base": "6.2.6-jre17-rockylinux8",
+        "dockerImage": "quay.io/alfresco/alfresco-activemq"
+      },
+      "auditStorage": {
+        "base": "1.3.3",
+        "dockerImage": "quay.io/alfresco/alfresco-audit-storage"
+      },
+      "digitalWorkspace": {
+        "base": "8.0.0",
+        "dockerImage": "quay.io/alfresco/alfresco-digital-workspace"
+      },
+      "controlCenter": {
+        "base": "11.0.0",
+        "dockerImage": "quay.io/alfresco/alfresco-control-center"
+      },
+      "serviceSync": {
+        "base": "5.3.5",
         "dockerImage": "quay.io/alfresco/service-sync"
       }
     }
