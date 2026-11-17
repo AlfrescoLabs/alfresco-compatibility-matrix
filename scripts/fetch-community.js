@@ -45,11 +45,17 @@ const KEY_MAP = {
   MARIADB_TAG:          'mariadb',
   TRANSFORM_ENGINE_TAG: 'transformEngine',
   ACTIVEMQ_TAG:         'activeMQ',
+  OPENSEARCH_TAG:       'opensearch',
+  BATCH_INDEXER_TAG:    'elasticsearchIndexing',
 };
 
+// Search backends that are alternatives to each other from ACS 26.2.
+// alfresco-docker-installer ships OpenSearch, acs-deployment ships Elasticsearch,
+// so these keys are merged from the compose file into installer entries.
+const SEARCH_BACKEND_KEYS = ['elasticsearch', 'opensearch', 'elasticsearchIndexing'];
+
 // Maps Docker image name fragments in acs-deployment's community-compose.yaml
-// (master) -> canonical component names. Used only for the current
-// in-development train, which has no template folder yet.
+// -> canonical component names.
 const COMPOSE_IMAGE_MAP = [
   { match: /alfresco\/alfresco-content-repository-community:/,        name: 'repository' },
   { match: /alfresco\/alfresco-share:/,                              name: 'share' },
@@ -60,6 +66,7 @@ const COMPOSE_IMAGE_MAP = [
   { match: /alfresco\/alfresco-elasticsearch-batch-indexing:/,       name: 'elasticsearchIndexing' },
   { match: /^postgres:/,                                             name: 'postgres' },
   { match: /^elasticsearch:/,                                        name: 'elasticsearch' },
+  { match: /^opensearchproject\/opensearch:/,                        name: 'opensearch' },
 ];
 
 function extractTag(imageStr) {
@@ -92,6 +99,46 @@ function extractComposeComponents(doc) {
     }
   }
   return components;
+}
+
+function compareVersions(a, b) {
+  const pa = a.replace(/^v/, '').split('-')[0].split('.').map(Number);
+  const pb = b.replace(/^v/, '').split('-')[0].split('.').map(Number);
+  const len = Math.max(pa.length, pb.length);
+  for (let i = 0; i < len; i++) {
+    const na = pa[i] ?? 0;
+    const nb = pb[i] ?? 0;
+    if (na !== nb) return na - nb;
+  }
+  return 0;
+}
+
+async function fetchStableTags() {
+  const tags = [];
+  for (let page = 1; page <= 5; page++) {
+    const url = `https://api.github.com/repos/Alfresco/acs-deployment/tags?per_page=100&page=${page}`;
+    const res = await fetch(url, { headers: githubHeaders() });
+    if (!res.ok) throw new Error(`GitHub tags API HTTP ${res.status}`);
+    const batch = await res.json();
+    if (batch.length === 0) break;
+    for (const { name } of batch) {
+      if (/^v\d+\.\d+\.\d+$/.test(name)) tags.push(name);
+    }
+    if (batch.length < 100) break;
+  }
+  return tags.sort((a, b) => compareVersions(b, a));
+}
+
+// Returns the components of community-compose.yaml at a git ref, or null if
+// the file is missing or has no repository image.
+async function fetchCommunityCompose(ref) {
+  const url = `https://raw.githubusercontent.com/Alfresco/acs-deployment/${ref}/docker-compose/community-compose.yaml`;
+  const res = await fetch(url);
+  if (res.status === 404) return null;
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  const cleaned = (await res.text()).replace(/<%[^%]*%>/g, '""');
+  const components = extractComposeComponents(yamlLoad(cleaned));
+  return components.repository?.base ? components : null;
 }
 
 function parseEnv(text) {
@@ -148,31 +195,41 @@ async function main() {
     console.log('OK');
   }
 
-  // Fill the current in-development train (e.g. 26.2) from the plain master
-  // community-compose.yaml in acs-deployment. The newest ACS version has no
-  // template folder in alfresco-docker-installer until it is released, so it
-  // would otherwise be invisible on the Community side.
-  console.log('Fetching plain master community-compose.yaml...');
-  const composeUrl = 'https://raw.githubusercontent.com/Alfresco/acs-deployment/master/docker-compose/community-compose.yaml';
-  const composeRes = await fetch(composeUrl);
-  if (!composeRes.ok) {
-    console.warn(`  SKIP community-compose.yaml: HTTP ${composeRes.status}`);
-  } else {
-    const cleaned = (await composeRes.text()).replace(/<%[^%]*%>/g, '""');
-    const components = extractComposeComponents(yamlLoad(cleaned));
-    const repoBase = components.repository?.base;
-    if (!repoBase) {
-      console.warn('  SKIP community-compose.yaml: no repository image');
-    } else {
-      const minor = repoBase.split('.').slice(0, 2).join('.');
-      if (entries.some(e => e.acs === minor)) {
-        console.log(`  community-compose.yaml: ${minor} already covered, skipping`);
-      } else {
-        entries.push({ acs: minor, edition: 'community', components });
-        console.log(`  community-compose.yaml: OK -> ACS ${minor} (repo ${repoBase})`);
-      }
+  // Read community-compose.yaml from acs-deployment master and every stable tag
+  // (highest tag per minor wins). Master comes first: it holds the current
+  // in-development train (e.g. 26.2), which has no template folder in
+  // alfresco-docker-installer until it is released. For trains the installer
+  // already covers, only the missing search backends are merged in.
+  console.log('Fetching community-compose.yaml from acs-deployment master and tags...');
+  const refs = ['master', ...await fetchStableTags()];
+  const seenMinors = new Set();
+  for (const ref of refs) {
+    let components;
+    try {
+      components = await fetchCommunityCompose(ref);
+    } catch (err) {
+      console.warn(`  ${ref}: FAIL ${err.message}`);
+      continue;
     }
+    if (!components) continue;
+
+    const repoBase = components.repository.base;
+    const minor = repoBase.split('.').slice(0, 2).join('.');
+    if (seenMinors.has(minor)) continue;
+    seenMinors.add(minor);
+
+    const existing = entries.find(e => e.acs === minor);
+    if (!existing) {
+      entries.push({ acs: minor, edition: 'community', components });
+      console.log(`  ${ref}: OK -> ACS ${minor} (repo ${repoBase})`);
+      continue;
+    }
+    const added = SEARCH_BACKEND_KEYS.filter(k => components[k] && !existing.components[k]);
+    for (const k of added) existing.components[k] = components[k];
+    if (added.length) console.log(`  ${ref}: ACS ${minor} +${added.join(', +')}`);
   }
+
+  entries.sort((a, b) => compareVersions(a.acs, b.acs));
 
   mkdirSync(join(ROOT, 'data'), { recursive: true });
   writeFileSync(

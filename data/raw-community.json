@@ -465,31 +465,33 @@
       "repository": {
         "base": "26.2.0"
       },
-      "transformEngine": {
-        "base": "5.4.3"
-      },
       "share": {
-        "base": "26.2.0"
-      },
-      "postgres": {
-        "base": "17.9"
-      },
-      "elasticsearch": {
-        "base": "8.17.10",
-        "engine": "elasticsearch"
-      },
-      "elasticsearchIndexing": {
-        "base": "5.7.0"
-      },
-      "activeMQ": {
-        "base": "6.2.6-jre17-rockylinux8"
+        "base": "26.2.1"
       },
       "contentApp": {
         "base": "8.0.0"
       },
-      "controlCenter": {
-        "base": "11.0.0",
-        "dockerImage": "quay.io/alfresco/alfresco-control-center"
+      "postgres": {
+        "base": "17.9"
+      },
+      "mariadb": {
+        "base": "11.3.2"
+      },
+      "transformEngine": {
+        "base": "5.4.3"
+      },
+      "activeMQ": {
+        "base": "6.2.6-jre17-rockylinux8"
+      },
+      "opensearch": {
+        "base": "2"
+      },
+      "elasticsearchIndexing": {
+        "base": "5.7.0"
+      },
+      "elasticsearch": {
+        "base": "8.17.10",
+        "engine": "elasticsearch"
       }
     }
   }

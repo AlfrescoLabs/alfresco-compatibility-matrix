@@ -109,7 +109,7 @@
       digitalWorkspace:      'Digital Workspace',
       controlCenter:         'Control Center',
       serviceSync:           'Sync Service',
-      elasticsearchIndexing: 'Elasticsearch Indexing',
+      elasticsearchIndexing: 'Search',
       auditStorage:          'Audit Storage',
       activeMQ:              'ActiveMQ',
       elasticsearch:         'Elasticsearch',
@@ -120,7 +120,7 @@
 
     const CATEGORIES = [
       { label: 'Core',               keys: ['repository', 'share'] },
-      { label: 'Search & Transform', keys: ['search', 'transformEngine', 'transformRouter', 'transformCoreAio', 'sharedFileStore', 'elasticsearchIndexing'] },
+      { label: 'Search & Transform', keys: ['search', 'elasticsearchIndexing', 'transformEngine', 'transformRouter', 'transformCoreAio', 'sharedFileStore'] },
       { label: 'User Interface',     keys: ['contentApp', 'digitalWorkspace', 'controlCenter'] },
       { label: 'Messaging',          keys: ['activeMQ'] },
       { label: 'Data & Sync',        keys: ['serviceSync', 'auditStorage'] },
@@ -178,7 +178,11 @@
         if (engine === 'solr6')         return '<span class="note-badge solr">Solr 6</span>';
         if (engine === 'elasticsearch') return '<span class="note-badge elastic">Elasticsearch</span>';
       }
-      if (key === 'elasticsearch' || key === 'elasticsearchIndexing') {
+      // Search Enterprise and the Community batch indexer work with either backend
+      if (key === 'elasticsearchIndexing') {
+        return '<span class="note-badge elastic">Elasticsearch</span> <span class="note-badge opensearch">OpenSearch</span>';
+      }
+      if (key === 'elasticsearch') {
         return '<span class="note-badge elastic">Elasticsearch</span>';
       }
       if (key === 'opensearch') {
